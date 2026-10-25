@@ -1,0 +1,34 @@
+[build-system]
+requires = ["hatchling>=1.18"]
+build-backend = "hatchling.build"
+
+[project]
+name = "biodp"
+version = "0.1.0"
+description = "Dynamic programming engines for computational biology: alignment, RNA folding, HMM decoding."
+readme = "README.md"
+requires-python = ">=3.10"
+# Lower bounds are the versions the test suite was last run against.
+dependencies = ["numpy>=2.0"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "hypothesis>=6.100",
+    "jsonschema>=4.18",
+    "biopython>=1.85",
+    "mypy>=1.10",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/biodp"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "tests"]
+addopts = "-ra"
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+files = ["src"]

@@ -1,0 +1,41 @@
+{
+  "id": "nw-005-textbook-gattaca",
+  "algorithm": "needleman-wunsch",
+  "description": "The GATTACA / GCATGCU teaching example with +1 / -1 / -1 scoring.",
+  "input": {
+    "seq_a": "GATTACA",
+    "seq_b": "GCATGCU",
+    "substitution": {
+      "type": "match_mismatch",
+      "match": 1,
+      "mismatch": -1,
+      "alphabet": "ACGTU"
+    },
+    "gap": {
+      "open": -1,
+      "extend": -1
+    }
+  },
+  "expected": {
+    "score": 0,
+    "optimal_count": "3",
+    "alignments": [
+      [
+        "G-ATTACA",
+        "GCA-TGCU"
+      ],
+      [
+        "G-ATTACA",
+        "GCAT-GCU"
+      ],
+      [
+        "G-ATTACA",
+        "GCATG-CU"
+      ]
+    ]
+  },
+  "provenance": {
+    "generator": "exhaustive enumeration of all alignments (engines/python/tests/oracles.py)",
+    "cross_checked_with": "Biopython 1.88 PairwiseAligner"
+  }
+}

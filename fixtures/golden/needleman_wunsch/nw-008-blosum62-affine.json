@@ -1,0 +1,35 @@
+{
+  "id": "nw-008-blosum62-affine",
+  "algorithm": "needleman-wunsch",
+  "description": "Same peptides with BLOSUM62 and BLAST-style affine gaps (open -11, extend -1).",
+  "input": {
+    "seq_a": "HEAGAWGHEE",
+    "seq_b": "PAWHEAE",
+    "substitution": {
+      "type": "named",
+      "name": "BLOSUM62"
+    },
+    "gap": {
+      "open": -11,
+      "extend": -1
+    }
+  },
+  "expected": {
+    "score": 2,
+    "optimal_count": "2",
+    "alignments": [
+      [
+        "HEAGAWGHEE",
+        "---PAWHEAE"
+      ],
+      [
+        "HEAGAWGHEE",
+        "P---AWHEAE"
+      ]
+    ]
+  },
+  "provenance": {
+    "generator": "exhaustive enumeration of all alignments (engines/python/tests/oracles.py)",
+    "cross_checked_with": "Biopython 1.88 PairwiseAligner"
+  }
+}

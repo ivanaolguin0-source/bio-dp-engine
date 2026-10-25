@@ -1,0 +1,92 @@
+{
+  "traces": [
+    {
+      "id": "nw-001-both-empty",
+      "title": "Both empty",
+      "description": "Empty against empty: score 0 and exactly one (empty) alignment.",
+      "file": "nw-001-both-empty.json",
+      "score": 0,
+      "optimal_count": "1"
+    },
+    {
+      "id": "nw-002-one-empty-affine",
+      "title": "One empty affine",
+      "description": "Empty against ACG is one gap of length 3: open + 2 * extend.",
+      "file": "nw-002-one-empty-affine.json",
+      "score": -4,
+      "optimal_count": "1"
+    },
+    {
+      "id": "nw-003-homopolymer-ties",
+      "title": "Homopolymer ties",
+      "description": "AAA vs AA: the single gap can sit in any of three places, giving three co-optimal alignments.",
+      "file": "nw-003-homopolymer-ties.json",
+      "score": 1,
+      "optimal_count": "3"
+    },
+    {
+      "id": "nw-004-adjacent-opposite-gaps",
+      "title": "Adjacent opposite gaps",
+      "description": "With a harsh mismatch, A vs C is best as two adjacent gaps of different kinds, in either order.",
+      "file": "nw-004-adjacent-opposite-gaps.json",
+      "score": -2,
+      "optimal_count": "2"
+    },
+    {
+      "id": "nw-005-textbook-gattaca",
+      "title": "Textbook gattaca",
+      "description": "The GATTACA / GCATGCU teaching example with +1 / -1 / -1 scoring.",
+      "file": "nw-005-textbook-gattaca.json",
+      "score": 0,
+      "optimal_count": "3"
+    },
+    {
+      "id": "nw-006-affine-merges-gap",
+      "title": "Affine merges gap",
+      "description": "Affine scoring should delete the TTTT block as one gap rather than scattering it.",
+      "file": "nw-006-affine-merges-gap.json",
+      "score": 4,
+      "optimal_count": "1"
+    },
+    {
+      "id": "nw-007-durbin-blosum50-linear",
+      "title": "Durbin blosum50 linear",
+      "description": "HEAGAWGHEE / PAWHEAE, the worked example in Durbin et al. (1998), with BLOSUM50 and linear gap -8.",
+      "file": "nw-007-durbin-blosum50-linear.json",
+      "score": 1,
+      "optimal_count": "3"
+    },
+    {
+      "id": "nw-008-blosum62-affine",
+      "title": "Blosum62 affine",
+      "description": "Same peptides with BLOSUM62 and BLAST-style affine gaps (open -11, extend -1).",
+      "file": "nw-008-blosum62-affine.json",
+      "score": 2,
+      "optimal_count": "2"
+    },
+    {
+      "id": "demo-dna-indel",
+      "title": "DNA with one 3 bp deletion",
+      "description": "Two 30-ish bp sequences differing by substitutions and a single 3 bp deletion; affine gaps keep the deletion in one block.",
+      "file": "demo-dna-indel.json",
+      "score": 41,
+      "optimal_count": "1"
+    },
+    {
+      "id": "demo-homopolymer-ties",
+      "title": "Homopolymer: many co-optimal alignments",
+      "description": "A run of A's against a shorter run. Every placement of the gap scores the same, so the optimal-path band fills a whole region of the table.",
+      "file": "demo-homopolymer-ties.json",
+      "score": 3,
+      "optimal_count": "56"
+    },
+    {
+      "id": "demo-protein-blosum62",
+      "title": "Protein fragments, BLOSUM62",
+      "description": "A protein fragment against a variant with two substitutions (I/L, F/W) and a 3-residue deletion, scored with BLOSUM62 and BLAST-style affine gaps (open -11, extend -1).",
+      "file": "demo-protein-blosum62.json",
+      "score": 71,
+      "optimal_count": "2"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": "nw-006-affine-merges-gap",
+  "algorithm": "needleman-wunsch",
+  "description": "Affine scoring should delete the TTTT block as one gap rather than scattering it.",
+  "input": {
+    "seq_a": "ACGTTTTACG",
+    "seq_b": "ACGACG",
+    "substitution": {
+      "type": "match_mismatch",
+      "match": 2,
+      "mismatch": -3,
+      "alphabet": "ACGT"
+    },
+    "gap": {
+      "open": -5,
+      "extend": -1
+    }
+  },
+  "expected": {
+    "score": 4,
+    "optimal_count": "1",
+    "alignments": [
+      [
+        "ACGTTTTACG",
+        "ACG----ACG"
+      ]
+    ]
+  },
+  "provenance": {
+    "generator": "exhaustive enumeration of all alignments (engines/python/tests/oracles.py)",
+    "cross_checked_with": "Biopython 1.88 PairwiseAligner"
+  }
+}

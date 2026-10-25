@@ -1,0 +1,41 @@
+{
+  "id": "nw-003-homopolymer-ties",
+  "algorithm": "needleman-wunsch",
+  "description": "AAA vs AA: the single gap can sit in any of three places, giving three co-optimal alignments.",
+  "input": {
+    "seq_a": "AAA",
+    "seq_b": "AA",
+    "substitution": {
+      "type": "match_mismatch",
+      "match": 1,
+      "mismatch": -1,
+      "alphabet": "ACGT"
+    },
+    "gap": {
+      "open": -1,
+      "extend": -1
+    }
+  },
+  "expected": {
+    "score": 1,
+    "optimal_count": "3",
+    "alignments": [
+      [
+        "AAA",
+        "-AA"
+      ],
+      [
+        "AAA",
+        "A-A"
+      ],
+      [
+        "AAA",
+        "AA-"
+      ]
+    ]
+  },
+  "provenance": {
+    "generator": "exhaustive enumeration of all alignments (engines/python/tests/oracles.py)",
+    "cross_checked_with": "Biopython 1.88 PairwiseAligner"
+  }
+}

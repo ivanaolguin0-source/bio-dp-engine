@@ -1,0 +1,39 @@
+{
+  "id": "nw-007-durbin-blosum50-linear",
+  "algorithm": "needleman-wunsch",
+  "description": "HEAGAWGHEE / PAWHEAE, the worked example in Durbin et al. (1998), with BLOSUM50 and linear gap -8.",
+  "input": {
+    "seq_a": "HEAGAWGHEE",
+    "seq_b": "PAWHEAE",
+    "substitution": {
+      "type": "named",
+      "name": "BLOSUM50"
+    },
+    "gap": {
+      "open": -8,
+      "extend": -8
+    }
+  },
+  "expected": {
+    "score": 1,
+    "optimal_count": "3",
+    "alignments": [
+      [
+        "HEAGAWGHE-E",
+        "--P-AW-HEAE"
+      ],
+      [
+        "HEAGAWGHE-E",
+        "-P--AW-HEAE"
+      ],
+      [
+        "HEAGAWGHE-E",
+        "-PA--W-HEAE"
+      ]
+    ]
+  },
+  "provenance": {
+    "generator": "exhaustive enumeration of all alignments (engines/python/tests/oracles.py)",
+    "cross_checked_with": "Biopython 1.88 PairwiseAligner"
+  }
+}

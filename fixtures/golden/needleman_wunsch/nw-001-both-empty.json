@@ -1,0 +1,33 @@
+{
+  "id": "nw-001-both-empty",
+  "algorithm": "needleman-wunsch",
+  "description": "Empty against empty: score 0 and exactly one (empty) alignment.",
+  "input": {
+    "seq_a": "",
+    "seq_b": "",
+    "substitution": {
+      "type": "match_mismatch",
+      "match": 1,
+      "mismatch": -1,
+      "alphabet": "ACGT"
+    },
+    "gap": {
+      "open": -1,
+      "extend": -1
+    }
+  },
+  "expected": {
+    "score": 0,
+    "optimal_count": "1",
+    "alignments": [
+      [
+        "",
+        ""
+      ]
+    ]
+  },
+  "provenance": {
+    "generator": "exhaustive enumeration of all alignments (engines/python/tests/oracles.py)",
+    "cross_checked_with": null
+  }
+}

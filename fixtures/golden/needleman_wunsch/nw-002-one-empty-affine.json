@@ -1,0 +1,33 @@
+{
+  "id": "nw-002-one-empty-affine",
+  "algorithm": "needleman-wunsch",
+  "description": "Empty against ACG is one gap of length 3: open + 2 * extend.",
+  "input": {
+    "seq_a": "",
+    "seq_b": "ACG",
+    "substitution": {
+      "type": "match_mismatch",
+      "match": 1,
+      "mismatch": -1,
+      "alphabet": "ACGT"
+    },
+    "gap": {
+      "open": -2,
+      "extend": -1
+    }
+  },
+  "expected": {
+    "score": -4,
+    "optimal_count": "1",
+    "alignments": [
+      [
+        "---",
+        "ACG"
+      ]
+    ]
+  },
+  "provenance": {
+    "generator": "exhaustive enumeration of all alignments (engines/python/tests/oracles.py)",
+    "cross_checked_with": null
+  }
+}

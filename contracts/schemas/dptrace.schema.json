@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ivanaolguin0-source/bio-dp-engine/contracts/schemas/dptrace.schema.json",
+  "title": "DPTrace",
+  "description": "A replayable record of one dynamic-programming run. Engines emit it; the visualiser only reads it.",
+  "type": "object",
+  "required": ["schema_version", "algorithm", "engine", "inputs", "shape", "fill_order", "projection", "result"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^1\\.[0-9]+\\.[0-9]+$" },
+    "algorithm": {
+      "enum": ["needleman-wunsch", "smith-waterman", "hirschberg", "nussinov", "viterbi"]
+    },
+    "engine": {
+      "type": "object",
+      "required": ["language", "name", "version"],
+      "additionalProperties": false,
+      "properties": {
+        "language": { "enum": ["python", "java"] },
+        "name": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "description": "Per-algorithm inputs. Alignment engines provide seq_a, seq_b and scoring.",
+      "properties": {
+        "seq_a": { "type": "string" },
+        "seq_b": { "type": "string" },
+        "scoring": {
+          "type": "object",
+          "required": ["substitution", "gap"],
+          "properties": {
+            "substitution": {
+              "type": "object",
+              "required": ["name", "alphabet", "scores"],
+              "properties": {
+                "name": { "type": "string" },
+                "alphabet": { "type": "string", "minLength": 1 },
+                "scores": { "$ref": "#/$defs/intGrid" }
+              }
+            },
+            "gap": {
+              "type": "object",
+              "required": ["open", "extend"],
+              "properties": {
+                "open": { "type": "integer", "maximum": 0 },
+                "extend": { "type": "integer", "maximum": 0 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "shape": {
+      "type": "array",
+      "description": "[rows, cols] of every grid in this document.",
+      "items": { "type": "integer", "minimum": 1 },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "fill_order": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "enum": ["row-major", "anti-diagonal", "interval-length", "explicit"],
+          "description": "How the engine filled the table. 'explicit' requires a cells list."
+        },
+        "cells": { "type": "array", "items": { "$ref": "#/$defs/cell" } }
+      }
+    },
+    "projection": {
+      "type": "object",
+      "required": ["scores", "moves", "on_optimal_path"],
+      "additionalProperties": false,
+      "properties": {
+        "scores": { "$ref": "#/$defs/nullableIntGrid" },
+        "moves": {
+          "description": "Bitmask per cell: 1 diagonal, 2 up, 4 left. 0 for the origin and unreachable cells.",
+          "type": "array",
+          "items": { "type": "array", "items": { "type": "integer", "minimum": 0, "maximum": 7 } }
+        },
+        "on_optimal_path": {
+          "type": "array",
+          "items": { "type": "array", "items": { "type": "boolean" } }
+        }
+      }
+    },
+    "layers": {
+      "type": "array",
+      "description": "Raw DP states (for affine-gap alignment: M, X, Y).",
+      "items": {
+        "type": "object",
+        "required": ["name", "scores", "predecessors"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "scores": { "$ref": "#/$defs/nullableIntGrid" },
+          "predecessors": {
+            "description": "Bitmask of predecessor states that tie for this cell's maximum (bit k = layer k).",
+            "type": "array",
+            "items": { "type": "array", "items": { "type": "integer", "minimum": 0, "maximum": 255 } }
+          }
+        }
+      }
+    },
+    "result": {
+      "type": "object",
+      "required": ["score", "optimal_count", "alignments", "alignments_truncated"],
+      "properties": {
+        "score": { "type": "integer" },
+        "optimal_count": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$",
+          "description": "Exact count as a decimal string; it routinely exceeds 2^53."
+        },
+        "alignments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["aligned_a", "aligned_b", "path"],
+            "properties": {
+              "aligned_a": { "type": "string" },
+              "aligned_b": { "type": "string" },
+              "cigar": { "type": "string" },
+              "path": { "type": "array", "items": { "$ref": "#/$defs/cell" }, "minItems": 1 }
+            }
+          }
+        },
+        "alignments_truncated": { "type": "boolean" }
+      }
+    }
+  },
+  "$defs": {
+    "cell": {
+      "type": "array",
+      "items": { "type": "integer", "minimum": 0 },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "intGrid": {
+      "type": "array",
+      "items": { "type": "array", "items": { "type": "integer" } }
+    },
+    "nullableIntGrid": {
+      "type": "array",
+      "items": { "type": "array", "items": { "type": ["integer", "null"] } }
+    }
+  }
+}

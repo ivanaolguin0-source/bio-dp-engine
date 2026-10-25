@@ -1,0 +1,37 @@
+{
+  "id": "nw-004-adjacent-opposite-gaps",
+  "algorithm": "needleman-wunsch",
+  "description": "With a harsh mismatch, A vs C is best as two adjacent gaps of different kinds, in either order.",
+  "input": {
+    "seq_a": "A",
+    "seq_b": "C",
+    "substitution": {
+      "type": "match_mismatch",
+      "match": 1,
+      "mismatch": -10,
+      "alphabet": "ACGT"
+    },
+    "gap": {
+      "open": -1,
+      "extend": -1
+    }
+  },
+  "expected": {
+    "score": -2,
+    "optimal_count": "2",
+    "alignments": [
+      [
+        "-A",
+        "C-"
+      ],
+      [
+        "A-",
+        "-C"
+      ]
+    ]
+  },
+  "provenance": {
+    "generator": "exhaustive enumeration of all alignments (engines/python/tests/oracles.py)",
+    "cross_checked_with": "Biopython 1.88 PairwiseAligner"
+  }
+}

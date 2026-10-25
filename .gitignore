@@ -1,0 +1,15 @@
+# Dependencies and build output
+node_modules/
+dist/
+
+# Python caches and environments
+__pycache__/
+*.egg-info/
+.venv/
+.pytest_cache/
+.mypy_cache/
+.hypothesis/
+
+# macOS and local archives
+.DS_Store
+*.zip
