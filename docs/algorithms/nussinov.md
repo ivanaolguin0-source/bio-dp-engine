@@ -166,12 +166,12 @@ Memory grows as $n^2$ and time as $n^3$; the default limit is 2,000 bases.
 
 Durbin, R., Eddy, S., Krogh, A., & Mitchison, G. (1998). *Biological Sequence Analysis: Probabilistic Models of Proteins and Nucleic Acids*. Cambridge University Press.
 
-Lorenz, R., Bernhart, S. H., Höner zu Siederdissen, C., Tafer, H., Flamm, C., Stadler, P. F., & Hofacker, I. L. (2011). ViennaRNA Package 2.0. *Algorithms for Molecular Biology*, 6, 26. https://doi.org/10.1186/1748-7188-6-26
+Lorenz, R., Bernhart, S. H., Höner zu Siederdissen, C., Tafer, H., Flamm, C., Stadler, P. F., & Hofacker, I. L. (2011). ViennaRNA Package 2.0. *Algorithms for Molecular Biology*, 6, 26. https://doi.org/10.1186/1748-7188-6-26 (PMID: 22115189; PMCID: PMC3319429)
 
-Nussinov, R., & Jacobson, A. B. (1980). Fast algorithm for predicting the secondary structure of single-stranded RNA. *Proceedings of the National Academy of Sciences*, 77(11), 6309–6313. https://doi.org/10.1073/pnas.77.11.6309 (PMID: 6161375)
+Nussinov, R., & Jacobson, A. B. (1980). Fast algorithm for predicting the secondary structure of single-stranded RNA. *Proceedings of the National Academy of Sciences*, 77(11), 6309–6313. https://doi.org/10.1073/pnas.77.11.6309 (PMID: 6161375; PMCID: PMC350273)
 
-Nussinov, R., Pieczenik, G., Griggs, J. R., & Kleitman, D. J. (1978). Algorithms for loop matchings. *SIAM Journal on Applied Mathematics*, 35(1), 68–82. https://doi.org/10.1137/0135006 (volume, issue and pages not verified)
+Nussinov, R., Pieczenik, G., Griggs, J. R., & Kleitman, D. J. (1978). Algorithms for loop matchings. *SIAM Journal on Applied Mathematics*, 35(1), 68–82. https://doi.org/10.1137/0135006
 
-Zuker, M., & Stiegler, P. (1981). Optimal computer folding of large RNA sequences using thermodynamics and auxiliary information. *Nucleic Acids Research*, 9(1), 133–148. (Volume, issue, pages and DOI not verified.)
+Zuker, M., & Stiegler, P. (1981). Optimal computer folding of large RNA sequences using thermodynamics and auxiliary information. *Nucleic Acids Research*, 9(1), 133–148. https://doi.org/10.1093/nar/9.1.133 (PMID: 6163133; PMCID: PMC326673)
 
 Reference tRNA structure: tRNA database at tpsic.igcz.poznan.pl, entry 520, *Saccharomyces cerevisiae* tRNA-Phe.
