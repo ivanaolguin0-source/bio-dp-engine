@@ -129,3 +129,8 @@ button.ghost { background: transparent; }
 }
 .error { background: var(--error-bg); border-radius: 8px; padding: 10px 12px; white-space: pre-wrap; }
 footer { margin-top: 24px; }
+
+.arc-wrap { width: 100%; overflow-x: auto; margin-bottom: 8px; }
+.arc-wrap svg { display: block; }
+.dot-bracket { overflow-x: auto; white-space: pre; font-size: 0.85rem; line-height: 1.6; padding: 4px 0 8px; }
+.db-label { display: inline-block; width: 6.5em; color: var(--text-muted); font-family: system-ui, sans-serif; }

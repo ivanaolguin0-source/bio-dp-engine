@@ -1,0 +1,19 @@
+{
+  "id": "nus-009-many-ties",
+  "algorithm": "nussinov",
+  "description": "Four C's can pair with the G's on either side, so dozens of structures tie.",
+  "input": {
+    "sequence": "GGGGAAAACCCCAAAAGGGG",
+    "min_loop": 3,
+    "wobble": true
+  },
+  "expected": {
+    "score": 4,
+    "optimal_count": "70",
+    "structures": null
+  },
+  "provenance": {
+    "generator": "exhaustive enumeration of all secondary structures, first-base decomposition (engines/python/tests/oracles.py)",
+    "cross_checked_with": "classic four-case Nussinov recurrence (score)"
+  }
+}

@@ -1,4 +1,4 @@
-# DP Alignment Visualizer (web)
+# DP Visualizer (web)
 
 React + TypeScript front end that replays DPTrace files. It never computes DP: the Python (and later Java) engines export traces, and this app animates them.
 
@@ -15,7 +15,7 @@ npm run dev        # then open the URL it prints, usually http://localhost:5173
 ## Test it
 
 ```bash
-npm test           # 37 unit and contract tests (Vitest)
+npm test           # 57 unit and contract tests (Vitest)
 npm run typecheck  # TypeScript strict mode
 npm run build      # production bundle in dist/
 ```
@@ -41,5 +41,16 @@ python scripts/export_traces.py
 | Dashed cells after fill | Cells on at least one optimal alignment |
 | Orange path | The traceback for the selected alignment |
 | Matrix menu | Switch between the textbook view H and the raw Gotoh layers M, X, Y |
+
+For RNA folding (Nussinov) traces the same page changes shape:
+
+| Element | Meaning |
+|---|---|
+| Triangular table | Cell (i, j) is the interval from base i to base j; it fills one diagonal at a time, shortest intervals first |
+| Dashed L during fill | Every cell the current interval reads: along its row to the left and down the column to its left |
+| Arrows | Left: base j unpaired. Down-left: i pairs with j. Fork mark: j pairs with a base inside, splitting the interval |
+| Orange outlines | Intervals the traceback visits; it branches, so there is no single path |
+| Arc diagram | Predicted pairs above the line (blue G-C, orange A-U, green G-U); the reference structure, when the trace has one, below it |
+| Dot-bracket | The same structures as text, so colour is never the only cue |
 
 Keyboard: Space play/pause, Left/Right step, Home/End jump. A trace can be linked directly with its id in the URL hash, e.g. `#demo-homopolymer-ties`.

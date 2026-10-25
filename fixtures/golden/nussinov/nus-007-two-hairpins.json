@@ -1,0 +1,46 @@
+{
+  "id": "nus-007-two-hairpins",
+  "algorithm": "nussinov",
+  "description": "Two separate stem-loops side by side (a bifurcation).",
+  "input": {
+    "sequence": "GGGAAACCCAGGGAAACCC",
+    "min_loop": 3,
+    "wobble": false
+  },
+  "expected": {
+    "score": 6,
+    "optimal_count": "1",
+    "structures": [
+      [
+        [
+          0,
+          8
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          10,
+          18
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          12,
+          16
+        ]
+      ]
+    ]
+  },
+  "provenance": {
+    "generator": "exhaustive enumeration of all secondary structures, first-base decomposition (engines/python/tests/oracles.py)",
+    "cross_checked_with": "classic four-case Nussinov recurrence (score)"
+  }
+}

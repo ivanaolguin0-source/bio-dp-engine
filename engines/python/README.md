@@ -7,7 +7,7 @@ Dynamic programming engines for the Bioinformatics DP Engine & Visualizer. Algor
 ```bash
 cd engines/python
 pip install -e ".[dev]"
-pytest            # 149 tests: golden fixtures, exhaustive oracle, Biopython cross-checks
+pytest            # 186 tests: golden fixtures, exhaustive oracles, Biopython cross-checks
 mypy              # strict mode over src/
 ```
 
@@ -39,10 +39,22 @@ alignment = hirschberg(long_a, long_b, matrix=blosum62, gap=GapPenalty.linear(-4
 score = global_score(long_a, long_b, matrix=blosum62, gap=GapPenalty.linear(-4))     # score only
 ```
 
+RNA secondary structure (Nussinov, maximum base pairs):
+
+```python
+from biodp.rna import FoldingRules, nussinov
+
+result = nussinov("GGGAAAUCC", rules=FoldingRules(min_loop=3, wobble=True))
+result.score                 # 3 base pairs
+result.optimal_count         # 1
+result.best().dot_bracket    # '(((...)))'
+```
+
 ## Regenerating golden fixtures
 
 ```bash
 python ../../scripts/generate_nw_golden.py
+python ../../scripts/generate_nussinov_golden.py
 ```
 
 Expected values come from exhaustive enumeration, never from the engine, and are cross-checked against Biopython.

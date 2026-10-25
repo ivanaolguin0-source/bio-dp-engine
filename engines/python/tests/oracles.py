@@ -73,3 +73,76 @@ def parse_ncbi_matrix(text: str) -> dict[tuple[str, str], int]:
     rows = [ln.split() for ln in text.splitlines() if ln.strip() and not ln.lstrip().startswith("#")]
     header = rows[0]
     return {(row[0], col): int(v) for row in rows[1:] for col, v in zip(header, row[1:])}
+
+
+# ---------------------------------------------------------------------- RNA folding oracles
+
+RnaPairs = tuple[tuple[int, int], ...]
+WC = {("A", "U"), ("U", "A"), ("G", "C"), ("C", "G")}
+GU = {("G", "U"), ("U", "G")}
+
+
+def rna_can_pair(x: str, y: str, wobble: bool) -> bool:
+    return (x, y) in WC or (wobble and (x, y) in GU)
+
+
+def all_rna_structures(seq: str, min_loop: int, wobble: bool) -> list[RnaPairs]:
+    """Every pseudoknot-free secondary structure, built from the FIRST base.
+
+    The engine decomposes on the last base of each interval; this oracle
+    decides the first base's partner instead, so the two share no recurrence.
+    """
+    from functools import lru_cache
+
+    @lru_cache(maxsize=None)
+    def build(i: int, j: int) -> tuple[RnaPairs, ...]:
+        if j < i:
+            return ((),)
+        out: list[RnaPairs] = list(build(i + 1, j))  # i unpaired
+        for k in range(i + min_loop + 1, j + 1):
+            if rna_can_pair(seq[i], seq[k], wobble):
+                for inner in build(i + 1, k - 1):
+                    for right in build(k + 1, j):
+                        out.append(((i, k),) + inner + right)
+        return tuple(out)
+
+    return [tuple(sorted(s)) for s in build(0, len(seq) - 1)]
+
+
+def max_pair_structures(seq: str, min_loop: int, wobble: bool) -> tuple[int, frozenset[RnaPairs]]:
+    structures = all_rna_structures(seq, min_loop, wobble)
+    best = max(len(s) for s in structures)
+    return best, frozenset(s for s in structures if len(s) == best)
+
+
+def classic_nussinov_score(seq: str, min_loop: int, wobble: bool) -> int:
+    """The four-case textbook recurrence (Durbin et al. 1998), score only, plain loops."""
+    n = len(seq)
+    if n == 0:
+        return 0
+    N = [[0] * n for _ in range(n)]
+    for d in range(min_loop + 1, n):
+        for i in range(n - d):
+            j = i + d
+            best = max(N[i + 1][j], N[i][j - 1])
+            if rna_can_pair(seq[i], seq[j], wobble):
+                best = max(best, N[i + 1][j - 1] + 1)
+            for k in range(i + 1, j):
+                best = max(best, N[i][k] + N[k + 1][j])
+            N[i][j] = best
+    return N[0][n - 1]
+
+
+def is_valid_structure(seq: str, pairs: RnaPairs, min_loop: int, wobble: bool) -> bool:
+    used: set[int] = set()
+    for i, j in pairs:
+        if not (0 <= i < j < len(seq)) or i in used or j in used:
+            return False
+        if j - i - 1 < min_loop or not rna_can_pair(seq[i], seq[j], wobble):
+            return False
+        used.update((i, j))
+    for a, b in pairs:
+        for c, d in pairs:
+            if a < c < b < d:
+                return False  # crossing pairs form a pseudoknot
+    return True

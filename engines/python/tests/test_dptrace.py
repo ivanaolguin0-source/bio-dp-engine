@@ -80,3 +80,56 @@ def test_visualisation_size_cap() -> None:
     result = needleman_wunsch("A" * 400, "A" * 400, matrix=DNA, gap=GapPenalty(-5, -1))
     with pytest.raises(ValueError, match="capped"):
         to_dptrace(result)
+
+
+# ---------------------------------------------------------------------- Nussinov traces
+
+from biodp.rna import nussinov  # noqa: E402
+
+TRNA = "GCGGAUUUAGCUCAGUUGGGAGAGCGCCAGACUGAAGAUCUGGAGGUCCUGUGUUCGAUCCACAGAAUUCGCACCA"
+
+
+@pytest.mark.parametrize("seq", ["GGGAAAUCC", "A", "GGGGAAAACCCCAAAAGGGG", TRNA])
+def test_nussinov_trace_validates(seq: str) -> None:
+    document = to_dptrace(nussinov(seq))
+    VALIDATOR.validate(json.loads(dumps(document)))
+    assert document["fill_order"]["kind"] == "interval-length"
+    assert document["shape"] == [len(seq), len(seq)]
+
+
+def test_nussinov_trace_structure_of_table() -> None:
+    seq = "GGGGAAAACCCCAAAAGGGG"
+    result = nussinov(seq)
+    document = to_dptrace(result)
+    scores, moves = document["projection"]["scores"], document["projection"]["moves"]
+    n = len(seq)
+    for i in range(n):
+        for j in range(n):
+            if j < i:
+                assert scores[i][j] is None and moves[i][j] == 0
+            else:
+                assert scores[i][j] == result.N(i, j)
+                assert (moves[i][j] == 0) == (result.N(i, j) == 0)
+    assert scores[0][n - 1] == document["result"]["score"] == 4
+    assert document["result"]["optimal_count"] == "70"
+    assert document["result"]["structures_truncated"] is True
+
+
+def test_nussinov_listed_structures_replay_consistently() -> None:
+    result = nussinov("AAAAAAUUUUUU")
+    document = to_dptrace(result)
+    on_path = document["projection"]["on_optimal_path"]
+    assert len(document["result"]["structures"]) == 9
+    for entry in document["result"]["structures"]:
+        pairs = [tuple(p) for p in entry["pairs"]]
+        assert entry["dot_bracket"].count("(") == len(pairs) == result.score
+        assert entry["visited"][0] == [0, 11]
+        assert all(on_path[i][j] for i, j in entry["visited"])
+        # Every pair (k, j) must be decided at a visited cell whose right end is j.
+        visited_right_ends = {j for _, j in entry["visited"]}
+        assert all(j in visited_right_ends for _, j in pairs)
+
+
+def test_nussinov_empty_sequence_is_refused() -> None:
+    with pytest.raises(ValueError, match="empty"):
+        to_dptrace(nussinov(""))

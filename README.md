@@ -11,7 +11,7 @@ Dynamic programming algorithms from computational biology, implemented as tested
 | [Needleman-Wunsch](docs/algorithms/needleman-wunsch.md) (Gotoh affine gaps) | Are these two sequences related along their full length? | Python | Implemented, tested, visualized |
 | [Hirschberg](docs/algorithms/hirschberg.md) (linear-space Needleman-Wunsch) | The same question, for sequences too long to hold the whole table | Python | Implemented, tested |
 | Smith-Waterman (Gotoh affine gaps) | Do these sequences share a conserved region? | Java, multithreaded | Planned |
-| Nussinov | How might this RNA fold? | Python | Planned |
+| [Nussinov](docs/algorithms/nussinov.md) | How might this RNA fold? | Python | Implemented, tested, visualized |
 | Viterbi (CpG island HMM) | Which regions of this DNA are CpG islands? | Java | Planned |
 
 Highlights of the Needleman-Wunsch engine:
@@ -20,6 +20,7 @@ Highlights of the Needleman-Wunsch engine:
 * **Independently verified.** Expected results come from brute-force enumeration of every possible alignment and from Biopython, never from the engine itself.
 * **Two fill kernels, one answer.** A line-by-line reference implementation sits beside a NumPy row-vectorized one, and a property test requires their tables to be bit-identical.
 * **Linear space when it matters.** Hirschberg's divide-and-conquer variant aligns two 10,000-residue sequences in under 2 MB, where the full table would need about 2.7 GB.
+* **RNA folding shown honestly.** The Nussinov engine counts every optimal structure exactly, and the visualizer draws its prediction for a real yeast tRNA against the known cloverleaf: it recovers 10 of the 21 true pairs, which is why practical predictors use energy models instead.
 * **Corrected affine-gap handling.** It allows a gap in one sequence directly followed by a gap in the other, a case some aligners get wrong (Flouri et al., 2015). A fixture tests it.
 
 ## How it fits together
@@ -77,8 +78,8 @@ More examples in [`engines/python/README.md`](engines/python/README.md).
 ## Tests
 
 ```bash
-cd engines/python && pytest && mypy      # 149 tests; mypy in strict mode
-cd web && npm test && npm run typecheck  # 37 tests; TypeScript strict mode
+cd engines/python && pytest && mypy      # 186 tests; mypy in strict mode
+cd web && npm test && npm run typecheck  # 57 tests; TypeScript strict mode
 ```
 
 How correctness is established, in detail: [Validation](docs/algorithms/needleman-wunsch.md#7-validation).
@@ -87,6 +88,7 @@ How correctness is established, in detail: [Validation](docs/algorithms/needlema
 
 ```bash
 python scripts/generate_nw_golden.py   # golden fixtures, from brute force, cross-checked with Biopython
+python scripts/generate_nussinov_golden.py   # folding fixtures, from exhaustive enumeration of structures
 python scripts/export_traces.py        # traces for the visualizer, from the Python engine
 ```
 

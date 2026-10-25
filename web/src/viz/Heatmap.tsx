@@ -1,8 +1,8 @@
 // Canvas heatmap of a DP table, drawn from a DPTrace and a replay Frame.
 import { useEffect, useRef, useState } from "react";
-import type { Cell, DPTrace } from "../trace/types";
+import { isFolding, type Cell, type DPTrace } from "../trace/types";
 import { inkFor, scoreColor, scoreExtent, type Palette } from "./color";
-import { moveOffsets, type Frame } from "./replay";
+import { foldingInputs, hasSplit, moveOffsets, type Frame } from "./replay";
 
 export interface HeatmapOptions {
   /** -1 for the projected single matrix, otherwise an index into trace.layers. */
@@ -69,15 +69,17 @@ export function Heatmap({ trace, frame, palette, ink, options, onHover }: Props)
     const font = (px: number, weight = 500) =>
       `${weight} ${px}px ui-monospace, "SF Mono", Menlo, Consolas, monospace`;
 
-    // Residue headers. Row/column 0 is the empty prefix.
+    // Headers. Alignment: row/column 0 is the empty prefix. Folding: both
+    // axes are the same sequence; cell (i, j) is the interval from base i to base j.
+    const folding = isFolding(trace);
+    const rowLabel = (i: number) => (folding ? trace.inputs.sequence![i] : i === 0 ? "\u2205" : trace.inputs.seq_a![i - 1]);
+    const colLabel = (j: number) => (folding ? trace.inputs.sequence![j] : j === 0 ? "\u2205" : trace.inputs.seq_b![j - 1]);
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.font = font(Math.max(9, Math.min(15, cell * 0.5)), 600);
     ctx.fillStyle = ink.secondary;
-    const seqA = trace.inputs.seq_a;
-    const seqB = trace.inputs.seq_b;
-    for (let j = 0; j < cols; j++) ctx.fillText(j === 0 ? "∅" : seqB[j - 1], cx(j), header / 2);
-    for (let i = 0; i < rows; i++) ctx.fillText(i === 0 ? "∅" : seqA[i - 1], header / 2, cy(i));
+    for (let j = 0; j < cols; j++) ctx.fillText(colLabel(j), cx(j), header / 2);
+    for (let i = 0; i < rows; i++) ctx.fillText(rowLabel(i), header / 2, cy(i));
 
     // Cells (fills only; numbers are drawn after the traceback line).
     ctx.font = font(Math.max(8, Math.min(13, cell * 0.3)));
@@ -87,6 +89,7 @@ export function Heatmap({ trace, frame, palette, ink, options, onHover }: Props)
         const x = x0(j) + gap / 2;
         const y = y0(i) + gap / 2;
         const size = cell - gap;
+        if (folding && j < i) continue; // below the diagonal an interval has no meaning
         if (!frame.revealed[i][j]) {
           ctx.strokeStyle = palette.empty;
           ctx.lineWidth = 1;
@@ -104,7 +107,7 @@ export function Heatmap({ trace, frame, palette, ink, options, onHover }: Props)
 
     // The traceback line goes under the numbers so it never hides a score.
     const numbersShown = options.showNumbers && cell >= 24;
-    if (frame.traced.length > 1) {
+    if (!folding && frame.traced.length > 1) {
       ctx.strokeStyle = ink.accent;
       ctx.lineWidth = Math.max(2, cell * 0.07);
       ctx.lineCap = "round";
@@ -146,7 +149,8 @@ export function Heatmap({ trace, frame, palette, ink, options, onHover }: Props)
               : trace.layers![options.layer].predecessors[i][j]
                 ? LAYER_MOVE[options.layer]
                 : 0;
-          for (const [di, dj] of moveOffsets(bits)) drawArrow(ctx, cx(j), cy(i), di, dj, cell);
+          for (const [di, dj] of moveOffsets(bits, trace.algorithm)) drawArrow(ctx, cx(j), cy(i), di, dj, cell);
+          if (hasSplit(bits, trace.algorithm)) drawSplit(ctx, cx(j), cy(i), cell);
         }
       }
     }
@@ -170,9 +174,10 @@ export function Heatmap({ trace, frame, palette, ink, options, onHover }: Props)
       ctx.strokeStyle = ink.secondary;
       ctx.lineWidth = 1.5;
       ctx.setLineDash([2, 2]);
-      for (const [di, dj] of [[-1, -1], [-1, 0], [0, -1]]) {
-        if (i + di >= 0 && j + dj >= 0) ctx.strokeRect(x0(j + dj) + 1.5, y0(i + di) + 1.5, cell - 3, cell - 3);
-      }
+      const inputs: Cell[] = folding
+        ? foldingInputs(i, j, trace.inputs.folding!.min_loop)
+        : ([[i - 1, j - 1], [i - 1, j], [i, j - 1]] as Cell[]).filter(([a, b]) => a >= 0 && b >= 0);
+      for (const [a, b] of inputs) ctx.strokeRect(x0(b) + 1.5, y0(a) + 1.5, cell - 3, cell - 3);
       ctx.setLineDash([]);
       ctx.strokeStyle = ink.accent;
       ctx.lineWidth = 3;
@@ -243,4 +248,20 @@ function drawArrow(ctx: CanvasRenderingContext2D, x: number, y: number, di: numb
   ctx.lineTo(ex - head * Math.cos(angle + 0.55), ey - head * Math.sin(angle + 0.55));
   ctx.closePath();
   ctx.fill();
+}
+
+function drawSplit(ctx: CanvasRenderingContext2D, x: number, y: number, cell: number) {
+  // A small fork in the lower-left corner: "j pairs with an inner base k",
+  // which splits the interval into two independent sub-intervals.
+  const r = Math.max(2.5, cell * 0.07);
+  const bx = x - cell * 0.32;
+  const by = y + cell * 0.32;
+  ctx.beginPath();
+  ctx.moveTo(bx, by - r * 1.6);
+  ctx.lineTo(bx, by);
+  ctx.moveTo(bx, by);
+  ctx.lineTo(bx - r, by + r);
+  ctx.moveTo(bx, by);
+  ctx.lineTo(bx + r, by + r);
+  ctx.stroke();
 }

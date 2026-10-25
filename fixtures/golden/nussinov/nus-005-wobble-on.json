@@ -1,0 +1,34 @@
+{
+  "id": "nus-005-wobble-on",
+  "algorithm": "nussinov",
+  "description": "G-U wobble pairs allowed.",
+  "input": {
+    "sequence": "GGGAAAUUU",
+    "min_loop": 3,
+    "wobble": true
+  },
+  "expected": {
+    "score": 3,
+    "optimal_count": "1",
+    "structures": [
+      [
+        [
+          0,
+          8
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          2,
+          6
+        ]
+      ]
+    ]
+  },
+  "provenance": {
+    "generator": "exhaustive enumeration of all secondary structures, first-base decomposition (engines/python/tests/oracles.py)",
+    "cross_checked_with": "classic four-case Nussinov recurrence (score)"
+  }
+}

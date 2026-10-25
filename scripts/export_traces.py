@@ -21,10 +21,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "engines" / "python" / "src"))
 
 from biodp.align import needleman_wunsch  # noqa: E402
+from biodp.rna import FoldingRules, base_pair_metrics, nussinov, parse_dot_bracket  # noqa: E402
 from biodp.scoring import GapPenalty, SubstitutionMatrix  # noqa: E402
 from biodp.trace import dumps, to_dptrace  # noqa: E402
 
 GOLDEN = ROOT / "fixtures" / "golden" / "needleman_wunsch"
+GOLDEN_NUSSINOV = ROOT / "fixtures" / "golden" / "nussinov"
 MATRICES = ROOT / "fixtures" / "matrices"
 OUT = ROOT / "web" / "public" / "traces"
 
@@ -78,6 +80,51 @@ def export(case_id: str, title: str, description: str, seq_a: str, seq_b: str,
     (OUT / f"{case_id}.json").write_text(dumps(to_dptrace(result)) + "\n")
     return {
         "id": case_id,
+        "algorithm": "needleman-wunsch",
+        "title": title,
+        "description": description,
+        "file": f"{case_id}.json",
+        "score": result.score,
+        "optimal_count": str(result.optimal_count),
+    }
+
+
+# RNA folding demos. The reference structure, when given, is drawn against the
+# prediction; its source must be stated so the comparison can be checked.
+FOLDING_DEMOS: list[dict[str, Any]] = [
+    {
+        "id": "demo-trna-phe",
+        "title": "Yeast tRNA-Phe vs its real cloverleaf",
+        "description": "Nussinov packs in more pairs than the real tRNA has, and recovers only some of the "
+        "true ones: maximising pair count is not how RNA folds. Reference arcs are drawn below the line.",
+        "sequence": "GCGGAUUUAGCUCAGUUGGGAGAGCGCCAGACUGAAGAUCUGGAGGUCCUGUGUUCGAUCCACAGAAUUCGCACCA",
+        "min_loop": 3,
+        "wobble": True,
+        "reference": {
+            "dot_bracket": "(((((((..((((........)))).(((((.......))))).....(((((.......))))))))))))....",
+            "source": "tRNA database, tpsic.igcz.poznan.pl, entry 520 (Saccharomyces cerevisiae tRNA-Phe, unmodified sequence)",
+        },
+    },
+]
+
+
+def export_folding(case_id: str, title: str, description: str, sequence: str, min_loop: int, wobble: bool,
+                   reference: dict[str, str] | None = None) -> dict[str, Any]:
+    result = nussinov(sequence, rules=FoldingRules(min_loop=min_loop, wobble=wobble))
+    document = to_dptrace(result)
+    if reference:
+        ref_pairs = parse_dot_bracket(reference["dot_bracket"])
+        metrics = base_pair_metrics(result.best(), ref_pairs)
+        document["inputs"]["reference"] = {
+            **reference,
+            "pairs": [list(p) for p in ref_pairs],
+            "canonical_sensitivity": metrics["sensitivity"],
+            "canonical_ppv": metrics["ppv"],
+        }
+    (OUT / f"{case_id}.json").write_text(dumps(document) + "\n")
+    return {
+        "id": case_id,
+        "algorithm": "nussinov",
         "title": title,
         "description": description,
         "file": f"{case_id}.json",
@@ -100,6 +147,20 @@ def main() -> None:
         manifest.append(export(
             demo["id"], demo["title"], demo["description"], demo["seq_a"], demo["seq_b"],
             demo["substitution"], demo["gap"],
+        ))
+    for path in sorted(GOLDEN_NUSSINOV.glob("*.json")):
+        fixture = json.loads(path.read_text())
+        inp = fixture["input"]
+        if not inp["sequence"]:
+            continue  # an empty sequence has no table to show
+        manifest.append(export_folding(
+            fixture["id"], "RNA: " + fixture["id"].split("-", 2)[-1].replace("-", " "),
+            fixture["description"], inp["sequence"], inp["min_loop"], inp["wobble"],
+        ))
+    for demo in FOLDING_DEMOS:
+        manifest.append(export_folding(
+            demo["id"], demo["title"], demo["description"], demo["sequence"], demo["min_loop"], demo["wobble"],
+            demo.get("reference"),
         ))
     (OUT / "index.json").write_text(json.dumps({"traces": manifest}, indent=2) + "\n")
     for entry in manifest:

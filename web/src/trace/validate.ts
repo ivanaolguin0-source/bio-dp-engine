@@ -34,17 +34,46 @@ export function parseTrace(data: unknown): DPTrace {
     checkGrid(`layer ${layer.name} scores`, layer.scores);
     checkGrid(`layer ${layer.name} predecessors`, layer.predecessors);
   });
-  if (trace.inputs.seq_a.length + 1 !== rows || trace.inputs.seq_b.length + 1 !== cols) {
-    problems.push("shape does not match sequence lengths");
-  }
-  trace.result.alignments.forEach((a, k) => {
-    if (a.aligned_a.length !== a.aligned_b.length) problems.push(`alignment ${k}: rows differ in length`);
-    if (a.path.length !== a.aligned_a.length + 1) problems.push(`alignment ${k}: path length mismatch`);
-    const end = a.path[a.path.length - 1];
-    if (a.path[0][0] !== 0 || a.path[0][1] !== 0 || end[0] !== rows - 1 || end[1] !== cols - 1) {
-      problems.push(`alignment ${k}: path must run from (0,0) to (${rows - 1},${cols - 1})`);
+  const inRange = ([i, j]: [number, number]) => i >= 0 && j >= 0 && i < rows && j < cols;
+
+  if (trace.algorithm === "nussinov") {
+    const { sequence, folding } = trace.inputs;
+    const structures = trace.result.structures;
+    if (sequence === undefined || folding === undefined) problems.push("folding trace needs inputs.sequence and inputs.folding");
+    if (structures === undefined || trace.result.structures_truncated === undefined) {
+      problems.push("folding trace needs result.structures and result.structures_truncated");
     }
-  });
+    if (sequence !== undefined && (rows !== sequence.length || cols !== sequence.length)) {
+      problems.push("shape must be [n, n] for a sequence of length n");
+    }
+    structures?.forEach((s, k) => {
+      if (sequence !== undefined && s.dot_bracket.length !== sequence.length) problems.push(`structure ${k}: dot_bracket length differs from sequence`);
+      if (!s.visited.every(inRange)) problems.push(`structure ${k}: visited cell outside the table`);
+      if (!s.pairs.every(([i, j]) => i < j && inRange([i, j]))) problems.push(`structure ${k}: invalid pair`);
+    });
+    const reference = trace.inputs.reference;
+    if (reference && sequence !== undefined && reference.dot_bracket.length !== sequence.length) {
+      problems.push("reference structure length differs from sequence");
+    }
+  } else {
+    const { seq_a, seq_b, scoring } = trace.inputs;
+    const alignments = trace.result.alignments;
+    if (seq_a === undefined || seq_b === undefined || scoring === undefined) problems.push("alignment trace needs inputs.seq_a, seq_b and scoring");
+    if (alignments === undefined || trace.result.alignments_truncated === undefined) {
+      problems.push("alignment trace needs result.alignments and result.alignments_truncated");
+    }
+    if (seq_a !== undefined && seq_b !== undefined && (seq_a.length + 1 !== rows || seq_b.length + 1 !== cols)) {
+      problems.push("shape does not match sequence lengths");
+    }
+    alignments?.forEach((a, k) => {
+      if (a.aligned_a.length !== a.aligned_b.length) problems.push(`alignment ${k}: rows differ in length`);
+      if (a.path.length !== a.aligned_a.length + 1) problems.push(`alignment ${k}: path length mismatch`);
+      const end = a.path[a.path.length - 1];
+      if (a.path[0][0] !== 0 || a.path[0][1] !== 0 || end[0] !== rows - 1 || end[1] !== cols - 1) {
+        problems.push(`alignment ${k}: path must run from (0,0) to (${rows - 1},${cols - 1})`);
+      }
+    });
+  }
   if (problems.length) throw new TraceValidationError(problems);
   return trace;
 }

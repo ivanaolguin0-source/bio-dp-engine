@@ -2,6 +2,7 @@
   "traces": [
     {
       "id": "nw-001-both-empty",
+      "algorithm": "needleman-wunsch",
       "title": "Both empty",
       "description": "Empty against empty: score 0 and exactly one (empty) alignment.",
       "file": "nw-001-both-empty.json",
@@ -10,6 +11,7 @@
     },
     {
       "id": "nw-002-one-empty-affine",
+      "algorithm": "needleman-wunsch",
       "title": "One empty affine",
       "description": "Empty against ACG is one gap of length 3: open + 2 * extend.",
       "file": "nw-002-one-empty-affine.json",
@@ -18,6 +20,7 @@
     },
     {
       "id": "nw-003-homopolymer-ties",
+      "algorithm": "needleman-wunsch",
       "title": "Homopolymer ties",
       "description": "AAA vs AA: the single gap can sit in any of three places, giving three co-optimal alignments.",
       "file": "nw-003-homopolymer-ties.json",
@@ -26,6 +29,7 @@
     },
     {
       "id": "nw-004-adjacent-opposite-gaps",
+      "algorithm": "needleman-wunsch",
       "title": "Adjacent opposite gaps",
       "description": "With a harsh mismatch, A vs C is best as two adjacent gaps of different kinds, in either order.",
       "file": "nw-004-adjacent-opposite-gaps.json",
@@ -34,6 +38,7 @@
     },
     {
       "id": "nw-005-textbook-gattaca",
+      "algorithm": "needleman-wunsch",
       "title": "Textbook gattaca",
       "description": "The GATTACA / GCATGCU teaching example with +1 / -1 / -1 scoring.",
       "file": "nw-005-textbook-gattaca.json",
@@ -42,6 +47,7 @@
     },
     {
       "id": "nw-006-affine-merges-gap",
+      "algorithm": "needleman-wunsch",
       "title": "Affine merges gap",
       "description": "Affine scoring should delete the TTTT block as one gap rather than scattering it.",
       "file": "nw-006-affine-merges-gap.json",
@@ -50,6 +56,7 @@
     },
     {
       "id": "nw-007-durbin-blosum50-linear",
+      "algorithm": "needleman-wunsch",
       "title": "Durbin blosum50 linear",
       "description": "HEAGAWGHEE / PAWHEAE, the worked example in Durbin et al. (1998), with BLOSUM50 and linear gap -8.",
       "file": "nw-007-durbin-blosum50-linear.json",
@@ -58,6 +65,7 @@
     },
     {
       "id": "nw-008-blosum62-affine",
+      "algorithm": "needleman-wunsch",
       "title": "Blosum62 affine",
       "description": "Same peptides with BLOSUM62 and BLAST-style affine gaps (open -11, extend -1).",
       "file": "nw-008-blosum62-affine.json",
@@ -66,6 +74,7 @@
     },
     {
       "id": "demo-dna-indel",
+      "algorithm": "needleman-wunsch",
       "title": "DNA with one 3 bp deletion",
       "description": "Two 30-ish bp sequences differing by substitutions and a single 3 bp deletion; affine gaps keep the deletion in one block.",
       "file": "demo-dna-indel.json",
@@ -74,6 +83,7 @@
     },
     {
       "id": "demo-homopolymer-ties",
+      "algorithm": "needleman-wunsch",
       "title": "Homopolymer: many co-optimal alignments",
       "description": "A run of A's against a shorter run. Every placement of the gap scores the same, so the optimal-path band fills a whole region of the table.",
       "file": "demo-homopolymer-ties.json",
@@ -82,11 +92,93 @@
     },
     {
       "id": "demo-protein-blosum62",
+      "algorithm": "needleman-wunsch",
       "title": "Protein fragments, BLOSUM62",
       "description": "A protein fragment against a variant with two substitutions (I/L, F/W) and a 3-residue deletion, scored with BLOSUM62 and BLAST-style affine gaps (open -11, extend -1).",
       "file": "demo-protein-blosum62.json",
       "score": 71,
       "optimal_count": "2"
+    },
+    {
+      "id": "nus-002-too-short-to-pair",
+      "algorithm": "nussinov",
+      "title": "RNA: too short to pair",
+      "description": "Four bases cannot enclose a 3-base loop, so nothing pairs.",
+      "file": "nus-002-too-short-to-pair.json",
+      "score": 0,
+      "optimal_count": "1"
+    },
+    {
+      "id": "nus-003-simple-hairpin",
+      "algorithm": "nussinov",
+      "title": "RNA: simple hairpin",
+      "description": "A three-pair stem closing a three-base loop.",
+      "file": "nus-003-simple-hairpin.json",
+      "score": 3,
+      "optimal_count": "1"
+    },
+    {
+      "id": "nus-004-no-loop-constraint",
+      "algorithm": "nussinov",
+      "title": "RNA: no loop constraint",
+      "description": "The same sequence with min_loop 0: more ways to place the same number of pairs.",
+      "file": "nus-004-no-loop-constraint.json",
+      "score": 3,
+      "optimal_count": "10"
+    },
+    {
+      "id": "nus-005-wobble-on",
+      "algorithm": "nussinov",
+      "title": "RNA: wobble on",
+      "description": "G-U wobble pairs allowed.",
+      "file": "nus-005-wobble-on.json",
+      "score": 3,
+      "optimal_count": "1"
+    },
+    {
+      "id": "nus-006-wobble-off",
+      "algorithm": "nussinov",
+      "title": "RNA: wobble off",
+      "description": "The same sequence with Watson-Crick pairs only.",
+      "file": "nus-006-wobble-off.json",
+      "score": 1,
+      "optimal_count": "3"
+    },
+    {
+      "id": "nus-007-two-hairpins",
+      "algorithm": "nussinov",
+      "title": "RNA: two hairpins",
+      "description": "Two separate stem-loops side by side (a bifurcation).",
+      "file": "nus-007-two-hairpins.json",
+      "score": 6,
+      "optimal_count": "1"
+    },
+    {
+      "id": "nus-008-homopolymer-stem",
+      "algorithm": "nussinov",
+      "title": "RNA: homopolymer stem",
+      "description": "A run of A's against a run of U's: the stem can register in several ways.",
+      "file": "nus-008-homopolymer-stem.json",
+      "score": 4,
+      "optimal_count": "9"
+    },
+    {
+      "id": "nus-009-many-ties",
+      "algorithm": "nussinov",
+      "title": "RNA: many ties",
+      "description": "Four C's can pair with the G's on either side, so dozens of structures tie.",
+      "file": "nus-009-many-ties.json",
+      "score": 4,
+      "optimal_count": "70"
+    },
+    {
+      "id": "demo-trna-phe",
+      "algorithm": "nussinov",
+      "title": "Yeast tRNA-Phe vs its real cloverleaf",
+      "description": "Nussinov packs in more pairs than the real tRNA has, and recovers only some of the true ones: maximising pair count is not how RNA folds. Reference arcs are drawn below the line.",
+      "file": "demo-trna-phe.json",
+      "score": 28,
+      "optimal_count": "1872"
     }
   ]
 }

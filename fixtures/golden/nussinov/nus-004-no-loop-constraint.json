@@ -1,0 +1,160 @@
+{
+  "id": "nus-004-no-loop-constraint",
+  "algorithm": "nussinov",
+  "description": "The same sequence with min_loop 0: more ways to place the same number of pairs.",
+  "input": {
+    "sequence": "GGGAAAUCC",
+    "min_loop": 0,
+    "wobble": true
+  },
+  "expected": {
+    "score": 3,
+    "optimal_count": "10",
+    "structures": [
+      [
+        [
+          0,
+          8
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          2,
+          6
+        ]
+      ],
+      [
+        [
+          0,
+          8
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      [
+        [
+          0,
+          8
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          4,
+          6
+        ]
+      ],
+      [
+        [
+          0,
+          8
+        ],
+        [
+          1,
+          7
+        ],
+        [
+          5,
+          6
+        ]
+      ],
+      [
+        [
+          0,
+          8
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      [
+        [
+          0,
+          8
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          4,
+          6
+        ]
+      ],
+      [
+        [
+          0,
+          8
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          5,
+          6
+        ]
+      ],
+      [
+        [
+          1,
+          8
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      [
+        [
+          1,
+          8
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          4,
+          6
+        ]
+      ],
+      [
+        [
+          1,
+          8
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          5,
+          6
+        ]
+      ]
+    ]
+  },
+  "provenance": {
+    "generator": "exhaustive enumeration of all secondary structures, first-base decomposition (engines/python/tests/oracles.py)",
+    "cross_checked_with": "classic four-case Nussinov recurrence (score)"
+  }
+}

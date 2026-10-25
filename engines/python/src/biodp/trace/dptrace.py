@@ -27,8 +27,9 @@ import numpy.typing as npt
 import biodp
 from biodp.align.model import NEG_INF, State
 from biodp.align.needleman_wunsch import GlobalAlignmentResult
+from biodp.rna.nussinov import NussinovResult
 
-SCHEMA_VERSION: Final = "1.0.0"
+SCHEMA_VERSION: Final = "1.1.0"
 
 # Move bits for the projection. Deliberately distinct names from the FROM_*
 # predecessor-state flags even though the numeric values coincide.
@@ -48,13 +49,13 @@ def _grid(values: npt.NDArray[np.int64]) -> list[list[int | None]]:
 
 
 def to_dptrace(
-    result: GlobalAlignmentResult,
+    result: GlobalAlignmentResult | NussinovResult,
     *,
     max_alignments: int = 16,
     max_cells: int = DEFAULT_MAX_TRACE_CELLS,
     include_layers: bool = True,
 ) -> dict[str, Any]:
-    """Build a DPTrace document for one Needleman-Wunsch run.
+    """Build a DPTrace document for one engine run (alignment or RNA folding).
 
     Args:
         result: Output of :func:`biodp.align.needleman_wunsch`.
@@ -66,6 +67,8 @@ def to_dptrace(
     The optimal count is serialised as a decimal string because JavaScript
     numbers lose integer precision above 2**53.
     """
+    if isinstance(result, NussinovResult):
+        return _nussinov_trace(result, max_structures=max_alignments, max_cells=max_cells)
     dp = result.dp
     rows, cols = dp.n + 1, dp.m + 1
     if rows * cols > max_cells:
@@ -134,6 +137,73 @@ def to_dptrace(
             for state in State
         ]
     return document
+
+
+# Move bits for a Nussinov table. The schema leaves bit meanings to each
+# algorithm and carries them in projection.move_labels.
+NUSSINOV_I_PAIRS_J: Final = 1
+NUSSINOV_J_PAIRS_INNER: Final = 2
+NUSSINOV_J_UNPAIRED: Final = 4
+NUSSINOV_MOVE_LABELS: Final = {
+    str(NUSSINOV_I_PAIRS_J): "i pairs with j (from the interval inside)",
+    str(NUSSINOV_J_PAIRS_INNER): "j pairs with a base k inside the interval (splits it in two)",
+    str(NUSSINOV_J_UNPAIRED): "j unpaired (from the cell to the left)",
+}
+
+
+def _nussinov_trace(result: NussinovResult, *, max_structures: int, max_cells: int) -> dict[str, Any]:
+    n = result.n
+    if n == 0:
+        raise ValueError("an empty sequence has no table to visualise")
+    if n * n > max_cells:
+        raise ValueError(f"table has {n * n:,} cells; visualisation traces are capped at {max_cells:,}.")
+    scores: list[list[int | None]] = [[None] * n for _ in range(n)]
+    moves = [[0] * n for _ in range(n)]
+    for i in range(n):
+        for j in range(i, n):
+            scores[i][j] = result.N(i, j)
+            if result.N(i, j) == 0:
+                continue  # nothing to decide: the empty structure is the only optimum
+            unpaired, partners = result.choices(i, j)
+            moves[i][j] = (
+                (NUSSINOV_J_UNPAIRED if unpaired else 0)
+                | (NUSSINOV_I_PAIRS_J if i in partners else 0)
+                | (NUSSINOV_J_PAIRS_INNER if any(k > i for k in partners) else 0)
+            )
+    optimal = result.optimal_cells()
+    on_path = [[(i, j) in optimal for j in range(n)] for i in range(n)]
+    listed = result.take(max_structures)
+    count = result.optimal_count
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "algorithm": "nussinov",
+        "engine": {"language": "python", "name": "biodp", "version": biodp.__version__},
+        "inputs": {
+            "sequence": result.sequence,
+            "folding": {"min_loop": result.rules.min_loop, "wobble": result.rules.wobble},
+        },
+        "shape": [n, n],
+        "fill_order": {"kind": "interval-length"},
+        "projection": {
+            "scores": scores,
+            "moves": moves,
+            "on_optimal_path": on_path,
+            "move_labels": NUSSINOV_MOVE_LABELS,
+        },
+        "result": {
+            "score": result.score,
+            "optimal_count": str(count),
+            "structures": [
+                {
+                    "dot_bracket": s.dot_bracket,
+                    "pairs": [list(p) for p in s.pairs],
+                    "visited": [list(c) for c in result.visited_for(s.pairs)],
+                }
+                for s in listed
+            ],
+            "structures_truncated": count > len(listed),
+        },
+    }
 
 
 def dumps(document: dict[str, Any]) -> str:

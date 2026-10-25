@@ -49,6 +49,16 @@ describe("rejection", () => {
     t.projection.moves.pop();
     expect(() => parseTrace(t)).toThrow(/projection.moves/);
   });
+  it("rejects a folding trace without its structures", () => {
+    const t = load("nus-003-simple-hairpin.json");
+    delete t.result.structures;
+    expect(() => parseTrace(t)).toThrow(/result.structures/);
+  });
+  it("rejects a folding trace whose shape disagrees with the sequence", () => {
+    const t = load("nus-003-simple-hairpin.json");
+    t.inputs.sequence = t.inputs.sequence + "A";
+    expect(() => parseTrace(t)).toThrow(/shape must be/);
+  });
   it("rejects a path that does not reach the corner", () => {
     const t = good();
     t.result.alignments[0].path[t.result.alignments[0].path.length - 1] = [0, 0];
