@@ -15,7 +15,7 @@ Finds the best end-to-end alignment of two DNA, RNA, or protein sequences, and r
 
 Sequences that descend from a common ancestor accumulate substitutions, insertions, and deletions. An alignment is a hypothesis about that history: each column claims that two residues descend from the same ancestral position, or that one sequence gained or lost a residue there. Inferring homology, measuring divergence between orthologous genes, and checking a full-length amplicon against its expected sequence all start from such an alignment.
 
-*Global* alignment assumes the two sequences are related along their whole length, which suits genes or proteins of similar length from related species. When only a region is shared (one conserved domain inside two otherwise different proteins), global alignment forces unrelated flanks into the answer, and local alignment ([Smith-Waterman](smith-waterman.md)) is the right tool.
+*Global* alignment assumes the two sequences are related along their whole length, which suits genes or proteins of similar length from related species. When only a region is shared (one conserved domain inside two otherwise different proteins), global alignment forces unrelated flanks into the answer, and local alignment (Smith-Waterman, planned for the Java engine) is the right tool.
 
 Dynamic programming is not an optimisation here; it is the only practical approach. Two sequences of length 100 admit about $2.05 \times 10^{75}$ distinct alignments (the central Delannoy number $D(100, 100)$; the count grows roughly as $(3 + 2\sqrt{2})^n \approx 5.8^n$). The DP finds the best of them in $100 \times 100$ table cells.
 

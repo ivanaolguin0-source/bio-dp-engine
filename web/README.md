@@ -15,7 +15,7 @@ npm run dev        # then open the URL it prints, usually http://localhost:5173
 ## Test it
 
 ```bash
-npm test           # 36 unit and contract tests (Vitest)
+npm test           # 37 unit and contract tests (Vitest)
 npm run typecheck  # TypeScript strict mode
 npm run build      # production bundle in dist/
 ```
