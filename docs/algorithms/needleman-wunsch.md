@@ -7,9 +7,9 @@ Finds the best end-to-end alignment of two DNA, RNA, or protein sequences, and r
 | **Problem** | Optimal global pairwise alignment with affine gap scoring |
 | **Input** | Two sequences of lengths $n$ and $m$; a substitution matrix; gap open and extend scores |
 | **Output** | Optimal score; a canonical optimal alignment; the exact count of co-optimal alignments, with lazy enumeration and uniform sampling over them |
-| **Time / space** | $O(nm)$ / $O(nm)$ for full traceback; $O(n + m)$ with Hirschberg (planned) |
+| **Time / space** | $O(nm)$ / $O(nm)$ for full traceback; $O(n + m)$ with [Hirschberg](hirschberg.md) (linear gaps) |
 | **Engine** | Python, [`engines/python/src/biodp/align/`](../../engines/python/src/biodp/align/) |
-| **Status** | Implemented; 116 tests passing; cross-checked against Biopython 1.88 |
+| **Status** | Implemented; verified against brute-force enumeration and Biopython 1.88 |
 
 ## 1. Biological significance
 
@@ -179,8 +179,8 @@ Counting co-optimal alignments costs time proportional to the optimal subgraph. 
 | Technique | Saves | Costs | In this repo |
 |---|---|---|---|
 | Row-vectorised fill with prefix-max for $Y$ | Python interpreter overhead | Slightly less obvious code; guarded by kernel-equivalence test | Yes (default) |
-| Score-only, two rows | Space to $O(m)$ | No traceback possible | Planned (trivial once Hirschberg exists) |
-| Hirschberg divide and conquer | Space to $O(n + m)$ for the alignment itself | About 2× the time; one alignment, not all co-optimal ones | Planned, linear gaps first |
+| Score-only, two rows | Space to $O(\min(n, m))$ | No traceback possible | Yes: `global_score` (linear gaps) |
+| Hirschberg divide and conquer | Space to $O(n + m)$ for the alignment itself | About 2× the time; one alignment, not all co-optimal ones | Yes: [`hirschberg`](hirschberg.md) (linear gaps) |
 | Myers-Miller | Hirschberg's saving with affine gaps | Considerably fiddlier bookkeeping at the split point | Stretch goal |
 | Banded alignment | Time and space to $O(k \cdot \max(n, m))$ | Exact only if the optimum stays within the band | Not planned |
 | SIMD (striped, anti-diagonal) | Large constant factors | Platform-dependent code | Discussed for the Java engine |

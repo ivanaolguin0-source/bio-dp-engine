@@ -7,7 +7,7 @@ Dynamic programming engines for the Bioinformatics DP Engine & Visualizer. Algor
 ```bash
 cd engines/python
 pip install -e ".[dev]"
-pytest            # 116 tests: golden fixtures, exhaustive oracle, Biopython cross-checks
+pytest            # 149 tests: golden fixtures, exhaustive oracle, Biopython cross-checks
 mypy              # strict mode over src/
 ```
 
@@ -28,6 +28,15 @@ result.best.cigar()      # extended CIGAR, seq_a as reference
 result.alignments.take(10)      # first ten, generated lazily
 result.alignments.sample()      # one drawn uniformly at random
 trace_json = dumps(to_dptrace(result))   # DPTrace for the visualiser
+```
+
+For sequences too long for the full table (linear gaps only):
+
+```python
+from biodp.align import global_score, hirschberg
+
+alignment = hirschberg(long_a, long_b, matrix=blosum62, gap=GapPenalty.linear(-4))   # O(n + m) memory
+score = global_score(long_a, long_b, matrix=blosum62, gap=GapPenalty.linear(-4))     # score only
 ```
 
 ## Regenerating golden fixtures
