@@ -23,6 +23,10 @@ Highlights of the Needleman-Wunsch engine:
 * **RNA folding shown honestly.** The Nussinov engine counts every optimal structure exactly, and the visualizer draws its prediction for a real yeast tRNA against the known cloverleaf: it recovers 10 of the 21 true pairs, which is why practical predictors use energy models instead.
 * **Corrected affine-gap handling.** It allows a gap in one sequence directly followed by a gap in the other, a case some aligners get wrong (Flouri et al., 2015). A fixture tests it.
 
+The RNA folding view puts Nussinov's prediction for yeast tRNA-Phe against its known cloverleaf:
+
+![Arc diagram of yeast tRNA-Phe. Above the sequence, Nussinov's predicted pairs (coloured by G-C, A-U and G-U) form one deep nest of 28 arcs; below it, the 21 pairs of the real cloverleaf form an acceptor stem and three separate hairpin arms. The prediction shares 10 of the 21 real pairs.](docs/images/nussinov-trna.png)
+
 ## How it fits together
 
 ```
